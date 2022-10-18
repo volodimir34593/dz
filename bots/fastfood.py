@@ -60,6 +60,7 @@ def button(update: Update, context: CallbackContext) -> None:
         [InlineKeyboardButton("📏Хотдог -💵Цена - 80грн", callback_data='222')],
         [InlineKeyboardButton("📏Піцца -💵Цена - 120грн", callback_data='333')]]
 
+
     reply_markup_16p = InlineKeyboardMarkup(keyboard_16p)
 
     query.answer()
