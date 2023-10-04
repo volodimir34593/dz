@@ -1,50 +1,35 @@
-from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
-# Функція для обробки команди /start та відправлення reply-клавіатури
-def start(update, context):
-    user_id = update.message.from_user.id
-    reply_markup = ReplyKeyboardMarkup([['Хочу подивитись фільм', 'Хочу послухати музику']], one_time_keyboard=True)
-    context.bot.send_message(chat_id=user_id, text='Виберіть бажання:', reply_markup=reply_markup)
+# Функція для обробки повідомлень
+def handle_messages(update: Update, context: CallbackContext) -> None:
+    message_text = update.message.text.lower()
 
-# Функція для обробки текстового повідомлення з reply-клавіатурою
-def handle_text(update, context):
-    user_id = update.message.from_user.id
-    text = update.message.text
+    if "доброго ранку" in message_text:
+        context.bot.send_message(chat_id=update.effective_chat.id, text='Доброго ранку, чим будеш снідати?')
 
-    if text == 'Хочу подивитись фільм':
-        # Inline-клавіатура для фільмів
-        inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton('Рекомендації для фільмів', callback_data='movies')]
-        ])
-        context.bot.send_message(chat_id=user_id, text='Оберіть опцію для фільмів:', reply_markup=inline_keyboard)
-    elif text == 'Хочу послухати музику':
-        # Inline-клавіатура для музики
-        inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton('Рекомендації для музики', callback_data='music')]
-        ])
-        context.bot.send_message(chat_id=user_id, text='Оберіть опцію для музики:', reply_markup=inline_keyboard)
+# Функція для обробки команди /saysomething
+def saysomething(update: Update, context: CallbackContext) -> None:
+    # Ваша логіка для генерації цитати тут
+    quote = "Життя - це те, що трапляється, поки ви зайняті планами."
 
-# Функція для обробки inline-клавіатури
-def handle_inline_keyboard(update, context):
-    query = update.callback_query
-    user_id = query.from_user.id
-    option = query.data
-
-    if option == 'movies':
-        context.bot.send_message(chat_id=user_id, text='Ось рекомендації для фільмів:\n1. [Фільм 1](посилання_на_фільм1)\n2. [Фільм 2](посилання_на_фільм2)')
-    elif option == 'music':
-        context.bot.send_message(chat_id=user_id, text='Ось рекомендації для музики:\n1. [Пісня 1](посилання_на_пісню1)\n2. [Пісня 2](посилання_на_пісню2)')
+    context.bot.send_message(chat_id=update.effective_chat.id, text=quote)
 
 def main():
-    updater = Updater('YOUR_BOT_TOKEN', use_context=True)
+    # Встановлення токену бота
+    updater = Updater("YOUR_BOT_TOKEN", use_context=True)
+
+    # Отримання об'єкта розподілювача
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_text))
-    dp.add_handler(CallbackQueryHandler(handle_inline_keyboard))
+    # Додавання обробників повідомлень та команд
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_messages))
+    dp.add_handler(CommandHandler("saysomething", saysomething))
 
+    # Запуск бота
     updater.start_polling()
+
+    # Бот працює до зупинки вручну
     updater.idle()
 
 if __name__ == '__main__':
