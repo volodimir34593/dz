@@ -1,0 +1,26 @@
+import requests
+from bs4 import BeautifulSoup
+
+url = "http://yermilovcentre.org/medias/"
+
+# Відправка запиту на веб-сайт
+response = requests.get(url)
+
+# Перевірка, чи успішно відбулась отримання сторінки
+if response.status_code == 200:
+    # Створення об'єкта BeautifulSoup для парсингу HTML
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Знаходження елементів з назвами медіа та їхніми посиланнями
+    media_elements = soup.find_all('div', class_='media')
+
+    for media_element in media_elements:
+        # Отримання назви медіа
+        media_name = media_element.find('h4').text.strip()
+
+        # Отримання посилання на медіа
+        media_link = media_element.find('a')['href']
+
+        print(f"Назва: {media_name}\nПосилання: {media_link}\n")
+else:
+    print(f"Помилка при отриманні сторінки. Код статусу: {response.status_code}")
